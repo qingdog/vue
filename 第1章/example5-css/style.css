@@ -1,0 +1,15 @@
+/* 元素(type)选择器 */
+p {
+    background-color:rgb(243, 136, 42);
+}
+
+/* class 选择器 */
+.c1 {
+    background-color: rgb(151, 211, 48);
+}
+
+/* id 选择器 */
+#p3 {
+    background-color: cyan;
+    display: block;
+}

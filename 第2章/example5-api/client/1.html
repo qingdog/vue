@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导入测试</title>
+</head>
+<body>
+    <script type="module">
+        // 单个导入
+        // import {a,b,c} from './1.js'
+        // console.log(a);
+        // console.log(b);
+        // c();
+
+        // 导入默认
+        // import x from './1.js'
+        // console.log(x)
+
+        // 整体导入
+        import * as m from './1.js'
+        console.log(m)
+        console.log(m.a)
+        console.log(m.b)
+        m.c()
+        console.log(m.default)
+    </script>
+</body>
+</html>

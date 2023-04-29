@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模板</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn {
+            padding: 10px;
+        }
+
+        .out {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            background-color:darkgrey;
+        }
+
+        .in {
+            width: 200px;
+            box-sizing: border-box;
+            height: 200px;
+            border: solid 2px black;
+            padding: 10px;
+            background-color: antiquewhite;
+            margin: 10px;
+            float: left;
+        }
+    </style>
+</head>
+
+<body>    
+    <div class="out">
+        <div class="btn">
+            <input type="button" value="根据模板创建" id="add">
+        </div>
+        
+    </div>
+    <template id="t">
+        <div class="in">
+            <form action="">
+                <p><label>姓名</label> <input type="text"></p>
+                <p><label>年龄</label> <input type="text"></p>
+                <p><input type="submit" value="添加"></p>
+            </form>
+        </div>
+    </template>
+    <script>
+        document.getElementById("add").onclick = () => {
+            let t = document.getElementById("t");
+            let inputs = t.content.querySelectorAll("input");
+            inputs[0].value = randomGenerator("abcdefghijklmnopqrstuvwxyz", 5);
+            inputs[1].value = randomGenerator("1234567890", 2);
+            const c = document.importNode(t.content, true);
+            document.querySelector(".out").appendChild(c);
+        }
+        function randomGenerator(str, n) {
+            const result = [];
+            for (let i = 0; i < n; i++) {
+                result.push(str.charAt(Math.floor(Math.random() * str.length)))
+            }
+            return result.join("");
+        }
+    </script>
+</body>
+
+</html>
