@@ -530,11 +530,10 @@ a()();  // 在外面执行了 b
 > 
 >     public static Consumer<Integer> a() {
 >         int y = 20;
->         Consumer<Integer> b =
->                 x -> System.out.println(x + "," + y);
+>         Consumer<Integer> b = x -> System.out.println(x + "," + y);
 >         return b;
 >     }
-> }
+>    }
 > ```
 
 ##### let、var 与作用域
