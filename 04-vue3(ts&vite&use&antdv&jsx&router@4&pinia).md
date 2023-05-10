@@ -765,8 +765,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 
-createApp(App)
-  .mount('#app')
+createApp(App).mount('#app')
 ```
 
 * createApp 是创建一个 Vue 应用程序，它接收的参数 App 即之前我们看到的根组件
@@ -2301,8 +2300,7 @@ const {runAsync:update} = useRequest<AxiosRespString,StudentSaveDto[]>(
 父组件使用子组件
 
 ```vue
-<A4Save :id="id" :dto="saveDto" v-model:visible="saveVisible"></A4Save>
-
+<A4Save :id="id" :dto="saveDto" v-model:visible="saveVisible" @saved="onSaved"></A4Save>
 <script setup lang="ts">
 // ...
 // >>>>>>>>>>>>>> 新增、修改开始
@@ -2339,7 +2337,32 @@ function onSaved() {
   saveDto.age = record.age
   ```
 
-
+> 在父组件中，可以通过在组件标签上使用 `v-on` 或 `@` 指令来监听子组件发送的自定义事件。具体来说，如果想要监听子组件中发出的 `saved` 事件，可以这样做：
+>
+> ```vue
+> <!-- 父组件模板中 -->
+> <template>
+>   <div>
+>     <!-- 渲染子组件，并使用 @saved 来监听子组件发出的 saved 事件 -->
+>     <student-form :id="id" :dto="dto" :visible="visible" @saved="handleSaved"></student-form>
+>     <!-- 一些其他的代码 -->
+>   </div>
+> </template>
+> 
+> <script>
+> export default {
+>   methods: {
+>     // 在 methods 中定义 handleSaved 方法，用于处理子组件发出的 saved 事件
+>     handleSaved() {
+>       // 重新加载学生列表等操作
+>       // ...
+>     }
+>   }
+> }
+> </script>
+> ```
+>
+> 在子组件中，`emit('saved')` 语句就会触发父组件中定义的名为 `handleSaved` 的方法。
 
 #### 全局消息
 
@@ -2675,7 +2698,7 @@ const routes = [
 
 效果是，当页面输入一个不存在路径 /aaa 时，会被 `path: '/:pathMatcher(.*)*'` 匹配到，然后重定向跳转到 A52 组件去
 
-
+> `:pathMatch(.*)*` 则更加广泛，可以匹配一切包含 `/` 的路径，甚至是空路径。
 
 #### 主页布局
 
@@ -2941,6 +2964,18 @@ export default {
 }
 ```
 
+> 注意 tsx 文件中，属性要加的声明（msg属于props要导出的定义属性defineProps，不是变量名称），类型为首字母大写的`String`
+>
+> ```tsx
+> props: {
+> 	msg: String
+> }
+> ```
+>
+> 然后再`setup(props: { msg: string }) {`方法中使用
+
+
+
 然后被其它组件使用
 
 ```vue
@@ -3137,6 +3172,14 @@ onMounted(()=>{
 * 登录成功后去请求 `/api/menu/{username}`  获取该用户的菜单和路由
 * router.push 方法用来以编程方式跳转至主页路由
 
+> 登录组件加载时清理storage（简单处理）
+>
+> ```vue
+> onMounted(()=>{
+>   resetRoutes()
+> })
+> ```
+
 
 
 ##### 主页组件
@@ -3223,7 +3266,185 @@ import { serverMenus } from '../router/a6router'
 2. 前端路由跳转依据，例如跳转前检查 token，如果不存在，表示未登录，就避免跳转至某些路由
 3. 后端 api 访问依据，例如每次发请求携带 token，后端需要身份校验的 api 需要用到
 
-
+> 从 token 获取用户信息 getUsername
+>
+> `atob`是 JavaScript 内置的函数，用于将 base64 编码的字符串解码成普通文本。
+>
+> ```vue
+> <template>
+>   <div class="login">
+>     <a-form :label-col="{ span: 6 }" autocomplete="off">
+>       <a-form-item label="用户名" v-bind="validateInfos.username">
+>         <a-input v-model:value="dto.username" />
+>       </a-form-item>
+>       <a-form-item label="密码" v-bind="validateInfos.password">
+>         <a-input-password v-model:value="dto.password" />
+>       </a-form-item>
+>       <a-form-item :wrapper-col="{ offset: 6, span: 16 }">
+>         <a-button type="primary" @click="onClick">登录</a-button>
+>       </a-form-item>      
+>     </a-form>
+>   </div>
+> </template>
+> <script setup lang="ts">
+> import { ref, onMounted } from 'vue'
+> import { Form } from 'ant-design-vue'
+> import { useRouter } from 'vue-router'
+> import axios from '../api/request'
+> import { useRequest } from 'vue-request'
+> import { AxiosRespToken, LoginDto, AxiosRespMenuAndRoute } from '../model/Model8080'
+> import { addServerRoutes, resetRoutes, serverMenus, serverToken, serverUsername } from '../router/a6router'
+> 
+> // 必须放在顶层
+> const router = useRouter()
+> const dto = ref({username:'', password:''})
+> const rules = ref({
+>   username: [
+>     {required: true, message:'用户名必填'}
+>   ],
+>   password:[
+>     {required: true, message:'密码必填'}
+>   ]
+> })
+> const { validateInfos, validate } = Form.useForm(dto, rules)
+> const { runAsync:login } = useRequest<AxiosRespToken, LoginDto[]>((dto)=> axios.post('/api/loginJwt', dto), {manual:true})
+> const { runAsync:menu } = useRequest<AxiosRespMenuAndRoute, string[]>((username)=> axios.get(`/api/menu/${username}`), {manual:true})
+> async function onClick() {
+>   try {
+>     await validate()
+>     const loginResp = await login(dto.value)
+>     if(loginResp.data.code === 200) { // 登录成功
+>       resetRoutes()
+> 
+>       const token = loginResp.data.data.token
+>       // 存储 token 用户名
+>       serverToken.value = token
+>       serverUsername.value = getUsername(token)
+>       console.log(serverUsername.value)
+> 
+>       const menuResp = await menu(serverUsername.value)      
+>       // 存储菜单, 添加路由
+>       serverMenus.value = menuResp.data.data.menuTree
+>       addServerRoutes(menuResp.data.data.routeList)
+> 
+>       // 跳转至主页
+>       router.push('/')
+>     }
+>   } catch (e) {
+>     console.error(e)
+>   }
+> }
+> 
+> onMounted(()=>{
+>   resetRoutes()
+> })
+> 
+> function getUsername(token:string) {
+>   if(!token) {
+>     return ''
+>   }
+>   const s = token.split('.')
+>   return JSON.parse(atob(s[1])).sub
+> }
+> </script>
+> <style scoped>
+> .login{
+>   margin: 200px auto;
+>   width: 300px;
+>   padding: 20px;
+>   height: 180px;
+>   background-color: antiquewhite;
+> }
+> </style>
+> ```
+>
+> 
+>
+> beforeEach 校验登录状态，afterEach 修改vue的单页面标题
+>
+> ```typescript
+> import { createRouter, createWebHashHistory } from 'vue-router'
+> import { useStorage } from '@vueuse/core'
+> import { Route, Menu } from '../model/Model8080'
+> const clientRoutes = [
+>   {
+>     path: '/login',
+>     name: 'login',
+>     component: () => import('../views/A6Login.vue')
+>   },
+>   {
+>     path: '/404',
+>     name: '404',
+>     component: () => import('../views/A6NotFound.vue')
+>   },
+>   {
+>     path: '/',
+>     name: 'main',
+>     component: () => import('../views/A6Main.vue')
+>   },
+>   {
+>     path: '/:pathMatcher(.*)*',
+>     name: 'remaining',
+>     redirect: '/404'
+>   }
+> ]
+> 
+> const router = createRouter({
+>   history: createWebHashHistory(),
+>   routes: clientRoutes
+> })
+> 
+> // 每次路由跳转之前执行
+> // to 目标路由对象
+> // from 源路由对象
+> router.beforeEach((to, from) => {
+>   if(to.name === 'main' && !serverToken.value) {
+>     return '/login'
+>   }
+> })
+> 
+> // 每次路由跳转之后执行, 例如统一修改页面标题
+> router.afterEach((to, from)=>{
+>   document.title = to.name?.toString() || ''
+> })
+> 
+> export const serverUsername = useStorage<string>('serverUsername','')
+> export const serverToken = useStorage<string>('serverToken','')
+> export const serverMenus = useStorage<Menu[]>('serverMenus', [])
+> const serverRoutes = useStorage<Route[]>('serverRoutes', [])
+> addServerRoutes(serverRoutes.value)
+> 
+> // 重置路由、菜单、token、用户名
+> export function resetRoutes() {
+>   for(const r of clientRoutes) {
+>     // 参数1: 路由对象, (原始的路由对象)
+>     router.addRoute(r) // 替换掉同名的路由对象
+>   }
+>   serverRoutes.value = null
+>   serverMenus.value = null
+>   serverUsername.value = null
+>   serverToken.value = null
+> }
+> 
+> // 添加服务器端路由
+> export function addServerRoutes(routeList: Route[]) {
+>   for(const r of routeList) {
+>     // 参数1: 父路由名字
+>     // 参数2: 路由对象
+>     router.addRoute(r.parentName, {
+>       path: r.path,
+>       name: r.name,
+>       component: () => import(r.component)
+>     })
+>   }
+>   serverRoutes.value = routeList
+> }
+> 
+> 
+> export default router
+> ```
+>
+> 
 
 ### 3) pinia
 
