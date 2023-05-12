@@ -3091,7 +3091,7 @@ export default router
   * clientRoutes 这是客户端固定的路由
   * serverRoutes 这是服务器变化的路由，存储于 localStorage
 * resetRoutes 函数用来将路由重置为 clientRoutes 
-  * vue-router@4 中的 addRoute 方法会【覆盖】同名路由，这是这种实现的关键
+  * ***vue-router@4 中的 addRoute 方法会【覆盖】同名路由***，这是这种实现的关键
   * 因此，服务器返回的路由最好是 main 的子路由，这样重置时就会比较简单，用之前的 main 一覆盖就完事了
 * serverMenus 变量记录服务器变化的菜单，存储于 localStorage
 
