@@ -238,9 +238,7 @@ src 格式有 3 种
 <!--例子--><audio src="1.mp3" controls></audio>
 ```
 
-> html标签完整文档：
->
-> [MDN]: https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/audio
+> [html标签完整文档：MDN]: https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/audio
 
 ### 3) 表单
 
