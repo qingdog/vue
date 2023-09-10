@@ -610,6 +610,10 @@ npm init vite@latest
 
 按提示操作
 
+> √ Project name: ... vite-project
+> √ Select a framework: » Vue
+> √ Select a variant: » TypeScript
+
 ```cmd
 cd 项目目录
 npm install
@@ -714,7 +718,19 @@ vite.config.ts
 * src/store 共享存储
 * src/views 视图组件
 
-
+> ```bash
+> $ sed -n 1,10p package.json
+> {
+>   "name": "client",
+>   "private": true,
+>   "version": "0.0.0",
+>   "type": "module",
+>   "scripts": {
+>     "dev": "vite",
+>     "build": "vue-tsc --noEmit && vite build",
+>     "preview": "vite preview"
+>   },
+> ```
 
 ### 2) Vue 组件
 
@@ -1054,10 +1070,11 @@ xhr.send()
 
 ```typescript
 function get(url: string) {
-  return new Promise((resolve, reject)=>{
+  return new Promise((resolve, reject) => {
+      
     const xhr = new XMLHttpRequest()
     xhr.onload = function() {
-      if(xhr.status === 200){
+      if(xhr.status === 200) {
         resolve(xhr.response)
       } else if(xhr.status === 404) {
         reject(xhr.response)
@@ -1246,7 +1263,12 @@ interface ImportMeta {
 
 * 参考文档地址 [环境变量和模式 | Vite 官方中文文档 (vitejs.dev)](https://cn.vitejs.dev/guide/env-and-mode.html)
 
-
+> 1. `.env`:
+>    - 这是一个默认的环境配置文件，会被所有环境共享。通常可以在此文件中设置一些通用的环境变量和配置。
+> 2. `.env.development`:
+>    - 这个文件包含了在开发环境下使用的环境变量和配置。当你在开发模式下启动项目时（使用 `vite` 或 `vite serve`），Vite 会自动读取并使用这个文件中的配置。
+> 3. `.env.production`:
+>    - 这个文件包含了在生产环境下使用的环境变量和配置。当你构建生产版本的项目时（使用 `vite build`），Vite 会自动读取并使用这个文件中的配置。
 
 ##### baseURL
 
@@ -2450,7 +2472,7 @@ function onCancel() {
   emit('update:visible', false)
 }
 
-const {runAsync:insert} = useRequest<AxiosRespString,StudentSaveDto[]>(
+const {runAsync:insert} = useRequest<AxiosRespString, StudentSaveDto[]>(
   (dto)=>axios.post('/api/students', dto),
   {
     manual: true
@@ -2495,7 +2517,7 @@ const { validateInfos, validate } = Form.useForm(props.dto, rules)
 npm install vue-router@4
 ```
 
-
+> 在 npm 5.0.0 之后，使用 `npm install package-name`，它会默认以 `--save`（或 `-S` 的简写）的方式将包安装为生产依赖项。
 
 #### 创建 router
 

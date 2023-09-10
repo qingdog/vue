@@ -1595,6 +1595,12 @@ nvm use 14.20.0
 
 安装后 nvm 自己的环境变量会自动添加，但可能需要手工添加 nodejs 的 PATH 环境变量
 
+> 右键此电脑 - 属性 - 高级系统设置 - 高级（选项卡） - 属性 - 系统变量 - 双击Path编辑 - 新建 - `%NVM_HOME%\v16.16.0`
+>
+> ```cmd
+> setx Path "%Path%;%NVM_HOME%\v16.16.0"
+> ```
+
 
 
 #### 2) 检查 npm
@@ -1613,7 +1619,16 @@ npm get registry
 npm config set registry https://registry.npm.taobao.org/
 ```
 
-
+> 默认地址：
+>
+> ```bash
+> npm config set registry https://registry.npmjs.org/
+> ```
+>
+> ```bash
+> # --location=local可能会失败
+> npm config set --location=local registry https://registry.npmjs.org/
+> ```
 
 #### 3) 搭建前端服务器
 
@@ -1625,6 +1640,12 @@ npm config set registry https://registry.npm.taobao.org/
 npm install express --save-dev
 ```
 
+> `--save`: 选项在较早的版本中用于将包添加到项目的依赖项（dependencies）中，通常是项目的运行时依赖。这意味着项目的运行时需要这些包才能正常工作。然而，从npm 5.0版本开始，npm已经默认将包添加到依赖项中，所以在新版本中可以省略`--save`选项。
+>
+> `--save-dev`: 这个选项用于将包添加到项目的开发依赖项（devDependencies）中。开发依赖项是指仅在开发和测试过程中需要的包，而在生产环境中并不需要。这些包通常包括测试框架、构建工具、代码检查工具等，用于帮助开发人员开发和维护项目，但不会在实际运行项目时使用。
+>
+> 在生产环境下，将直接部署到服务器上，无需再安装express。
+
 修改 package.json 文件
 
 ```json
@@ -1635,6 +1656,16 @@ npm install express --save-dev
   }
 }
 ```
+
+> package.json 为node 的配置文件
+>
+> ```json
+> {
+>   "type": "module"
+> }
+> ```
+>
+> 配置文件使用了 ECMAScript 模块（`"type": "module"`）来管理项目，即 import 或 export。而不是 node 默认的CommonJS。
 
 * 其中 devDependencies 是 npm install --save-dev 添加的
 
@@ -1654,7 +1685,41 @@ app.listen(7070)
 node main.js
 ```
 
+> ```javascript
+> // 使用 ES 模块语法
+> import express from 'express'
+> const app = express();
+> 
+> // express搭建web服务器，提供get请求根路径接口
+> app.get('/', (req, res) => {
+>   res.send('Hello, World!');
+> });
+> 
+> app.listen(3000, () => {
+>   console.log('Server is running on http://localhost:3000');
+> });
+> ```
 
+> ```javascript
+> // 使用http模块使JavaScript可以在服务器端运行
+> import http from 'http'
+> 
+> // 创建一个 HTTP 服务器实例
+> const server = http.createServer((req, res) => {
+>   // 当有请求时，发送一个简单的响应
+>   res.statusCode = 200;
+>   res.setHeader('Content-Type', 'text/plain');
+>   res.end('Hello, World!\n');
+> });
+> 
+> // 服务器监听在3000端口
+> const port = 3000;
+> const hostname = '127.0.0.1';
+> 
+> server.listen(port, hostname, () => {
+>   console.log(`Server running at http://${hostname}:${port}/`);
+> });
+> ```
 
 ### 前端案例
 
@@ -2002,6 +2067,13 @@ import {createProxyMiddleware} from 'http-proxy-middleware'
 
 app.use('/api', createProxyMiddleware({ target: 'http://localhost:8080', changeOrigin: true }));
 ```
+
+> 使用 Express 框架中的一个中间件（middleware）来设置一个反向代理。
+>
+> 1. 路径匹配模式 `'/api'`，它指定了在该路径下应用这个中间件。
+> 2. `createProxyMiddleware` 是一个用于创建反向代理的函数，通常用于将来自客户端的请求代理到另一个服务器。在这里，它会被用来创建一个反向代理。
+> 3. `target: 'http://localhost:8080'`：这是指定了目标服务器的地址，也就是请求代理到哪里去的地址。
+> 4. `changeOrigin: true`：这个选项通常用于反向代理到不同源（origin）的服务器。将其设置为 `true` 时，请求头中的 `host` 将被设置为目标服务器的 `host`，而不是发起请求的客户端的 `host`。
 
 fetch 代码改为
 

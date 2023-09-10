@@ -6,7 +6,7 @@
 
 #### 安装脚手架
 
-```
+```bash
 npm install -g @vue/cli
 ```
 
@@ -56,7 +56,7 @@ npm run serve
 
   > 中文文档：https://webpack.docschina.org/configuration/dev-server/
   >
-  > ```shell
+  > ```bash
   > 3000@DESKTOP-K3ETD03 MINGW32 /d/IDEA/vue/第3章/client (master)
   > $ ll
   > total 904
@@ -70,6 +70,24 @@ npm run serve
   > -rw-r--r-- 1 3000 197121    318  8月 15  2022 README.md
   > drwxr-xr-x 1 3000 197121      0  8月 18  2022 src/
   > -rw-r--r-- 1 3000 197121    264  8月 15  2022 vue.config.js
+  > ```
+  >
+  > ```bash
+  > $ head package.json
+  > {
+  >   "name": "client",
+  >   "version": "0.1.0",
+  >   "private": true,
+  >   "scripts": {
+  >     "serve": "vue-cli-service serve",
+  >     "build": "vue-cli-service build",
+  >     "lint": "vue-cli-service lint"
+  >   },
+  >   "dependencies": {
+  > ```
+  >
+  > ```bash
+  > npm run serve #启动node.js后端服务器
   > ```
 
 * 打开 vue.config.js 添加
@@ -374,6 +392,8 @@ axios 它的底层是用了 XMLHttpRequest（xhr）方式发送请求和接收�
 npm install axios -S
 ```
 
+* 参数 `-S` 选项代表 `--save` 的简写
+
 导入
 
 ```js
@@ -426,6 +446,7 @@ const options = {
             //     }
             // });
 
+            // 默认请求参数类型是 application/x-www-form-urlencoded，把参数作为 URL 的查询参数附加在请求的 URL 中。
             // 3. 发送请求时携带查询参数 ?name=xxx&age=xxx
             // const name = encodeURIComponent('&&&');
             // const age = 18;
@@ -439,7 +460,7 @@ const options = {
             //     }
             // });
 
-            // 4. 用请求体发数据，格式为 urlencoded
+            // 4. 用请求体发数据，格式为 urlencoded。类似通过表单提交数据
             // const params = new URLSearchParams();
             // params.append("name", "张三");
             // params.append("age", 24)
@@ -807,11 +828,11 @@ export default options;
 
 #### 重用组件
 
-按钮组件
+按钮组件 MyButton.vue
 
 ```vue
 <template>
-    <div class="button" :class="[type,size]">
+    <div class="button" :class="[type, size]">
         a<slot></slot>b
     </div>
 </template>
@@ -821,11 +842,21 @@ const options = {
 };
 export default options;
 </script>
+<style scoped>
+.primary {background-color: #1d6ef9;color: #b5e3f1;}
+.danger {background-color: rgb(196, 50, 50);color: white;}
+.success {background-color: #a5cd4e;color: #3e5706;}
+.small {width: 40px;height: 20px;font-size: 10px;line-height: 20px;}
+.middle {width: 50px;height: 25px;font-size: 14px;line-height: 25px;}
+.large {width: 60px;height: 30px;font-size: 18px;line-height: 30px;}
+</style>
 ```
 
-* 注意，省略了样式部分
+* 注意，省略了部分style
 
 使用组件
+
+> 把大写的vue主件名 改成小写短横线连接，使用时 通过导出的vue组件的变量 作为属性名 设置不同的class。
 
 ```vue
 <template>
@@ -861,8 +892,6 @@ export default options;
 npm install element-ui -S
 ```
 
-
-
 引入组件
 
 ```js
@@ -876,16 +905,16 @@ Vue.use(Element)
 >
 > 不再单独一个一个加入components
 >
+> ```js
 > import MyButton from '../components/MyButton.vue'
 > const options = {components: {MyButton}};
+> ```
 
 测试，在自己的组件中使用 ElementUI 的组件
 
 ```vue
 <el-button>按钮</el-button>
 ```
-
-
 
 #### 表格组件
 
@@ -1112,7 +1141,7 @@ const options = {
         const map = new Map(); 
 
         // 1. 将所有数据存入 map 集合(为了接下来查找效率)
-        for(const {id,name,pid} of array) {
+        for(const {id, name, pid} of array) {
             map.set(id, {value:id, label:name, pid:pid})
         }
         // 2. 建立父子关系
@@ -1363,7 +1392,7 @@ const routes = [
 </el-header>
 ```
 
-jump 方法
+jump 方法 调用this.$router.push(url);
 
 ```vue
 <script>
@@ -1698,8 +1727,7 @@ export default new Vuex.Store({
 ```vue
 <template>
     <div class="p">
-        <el-input placeholder="请修改用户姓名" 
-            size="mini" v-model="name"></el-input>
+        <el-input placeholder="请修改用户姓名" size="mini" v-model="name"></el-input>
         <el-button type="primary" size="mini" @click="update()">修改</el-button>
     </div>
 </template>
@@ -1747,7 +1775,7 @@ export default options;
 
 
 
-#### mapState
+#### mapState方法简化调用
 
 每次去写 `$store.state.name` 这样的代码显得非常繁琐，可以用 vuex 帮我们生成计算属性
 
@@ -1784,13 +1812,12 @@ export default options;
 
 
 
-#### mapMutations
+#### mapMutations简化
 
 ```vue
 <template>
     <div class="p">
-        <el-input placeholder="请修改用户姓名" 
-            size="mini" v-model="name"></el-input>
+        <el-input placeholder="请修改用户姓名" size="mini" v-model="name"></el-input>
         <el-button type="primary" size="mini" @click="updateName(name)">修改</el-button>
     </div>
 </template>
@@ -1816,7 +1843,7 @@ export default options;
 
 
 
-#### actions
+#### actions使用异步调用
 
 mutations 方法内不能包括修改不能立刻生效的代码，否则会造成 Vuex 调试工具工作不准确，必须把这些代码写在 actions 方法中
 
@@ -1870,7 +1897,9 @@ export default new Vuex.Store({
 
 * 然后再由它间接调用 mutations 的 updateServerName 更新共享数据
 
-  > 在actions中，方法里的context参数不需要传入，同理state参数也是一样的
+  > 在actions中，方法里的 context 参数不需要传入，同理 state 参数也是一样的
+
+#### mapActions简化
 
 页面使用 actions 的方法可以这么写
 
@@ -1946,9 +1975,29 @@ npm run dev
 
 开发环境下执行下面命令
 
-```
+```bash
 npm run dev
 ```
+
+> ```bash
+> $ head -16 package.json
+> {
+>   "name": "vue-element-admin",
+>   "version": "4.3.1",
+>   "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
+>   "author": "Pan <panfree23@gmail.com>",
+>   "scripts": {
+>     "dev": "vue-cli-service serve",
+>     "lint": "eslint --ext .js,.vue src",
+>     "build:prod": "vue-cli-service build",
+>     "build:stage": "vue-cli-service build --mode staging",
+>     "preview": "node build/index.js --preview",
+>     "new": "plop",
+>     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
+>     "test:unit": "jest --clearCache && vue-cli-service test:unit",
+>     "test:ci": "npm run lint && npm run test:unit"
+>   },
+> ```
 
 * 会同时启动 mock-server
 
